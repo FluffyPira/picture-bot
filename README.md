@@ -1,5 +1,6 @@
-# Picture Bot v 1.1
+# Picture Bot v 1.2
 
+Updated for twitter_ebooks version 3+
 A deployable twitter bot that solely exists to post pictures of things to the internet. Uses Mispy's [Twitter_Ebooks](https://github.com/mispy/twitter_ebooks) gem to run the bot, the script itself is based on Mispy's [Ebooks_example](https://github.com/mispy/ebooks_example) and modified to update with pictures only and none of the talky stuff.
 
 ## Usage:

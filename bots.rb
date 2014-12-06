@@ -1,7 +1,8 @@
-#!/usr/bin/env ruby
 require 'twitter_ebooks'
 require 'set'
-include Ebooks
+
+# This is an example bot definition with event handlers commented out
+# You can define and instantiate as many bots as you like
 
 CONSUMER_KEY = ""
 CONSUMER_SECRET = ""
@@ -10,86 +11,83 @@ OAUTH_TOKEN_SECRET = "" # oauth secret for ebooks account
 
 TWITTER_USERNAME = "" # Ebooks account username
 AUTHOR_NAME = "" # Put your twitter handle in here
-DELAY = 2..30 # Simulated human reply delay range in seconds
-BLACKLIST = [] # Grumpy users to avoid interaction with
+HASH = "" # Hashtag if you post to one
 
-SPECIAL_WORDS = ['your', 'words', 'here'] # may trigger fav
-TRIGGER_WORDS = ['trigger', 'slur', 'shitty thing to say'] # will trigger auto block
-# Thanks to @vex0rian and @parvitude for the random seed/post_pic method to keep it from posting duplicates near eachother.
-# You are both cuties ~<3.
-class GenBot
-  
-  def initialize(bot, modelname)
-    @bot = bot
-    bot.consumer_key = CONSUMER_KEY
-    bot.consumer_secret = CONSUMER_SECRET
+SPECIAL_WORDS = [''] # Words associated with your bot!
+TRIGGER_WORDS = [''] # will trigger auto block
+
+BLACKLIST = ['tnietzschequote'] # Users who don't want interaction; not currently in use
+
+class MyBot < Ebooks::Bot
+  # Configuration here applies to all MyBots
+  def configure
+    # Consumer details come from registering an app at https://dev.twitter.com/
+    # Once you have consumer details, use "ebooks auth" for new access tokens
+    self.consumer_key = CONSUMER_KEY # Your app consumer key
+    self.consumer_secret = CONSUMER_SECRET # Your app consumer secret
+
+    # Users to block instead of interacting with
+    self.blacklist = BLACKLIST
+
+    # Range in seconds to randomize delay when bot.delay is called
+    self.delay_range = 1..6
+  end
+
+  def on_startup
+    @pics = Dir.entries("pictures/") - %w[.. . .DS_Store].sort
+    log @pics.take(5) # poll for consistency and tracking purposes.
+    @status_count = twitter.user.statuses_count
     
-    bot.on_startup do
-      @pics = Dir.entries("pictures/") - %w[.. . .DS_Store].sort
-      bot.log @pics.take(5) # poll for consistency and tracking purposes.
-      @status_count = @bot.twitter.user.statuses_count
-      prune_following()
-      post_picture()
+    post_picture
+    
+    prune_following
+    
+    scheduler.every '3600' do
+      post_picture
     end
+    
+  end
 
-    bot.on_message do |dm|
-      # We don't actually want the bot to really say anything, rather just post lots of cute pics.
-      shit = Random.new.bytes(5)
-      bot.delay DELAY do
-        bot.reply dm, "Talk to #{AUTHOR_NAME} #{shit}" 
-      end 
-
-    end 
-
-    bot.on_follow do |user|
-      bot.delay DELAY do
-        bot.follow user[:screen_name]
-      end 
-
-    end 
-
-    bot.on_mention do |tweet, meta|
-      tokens = NLP.tokenize(tweet[:text])
-      special = tokens.find { |t| SPECIAL_WORDS.include?(t) }
-      trigger = tokens.find { |t| TRIGGER_WORDS.include?(t) }
-      
-      if special
-        favourite(tweet) if rand < 0.2
-      elsif trigger
-        block(tweet)
-      end 
-
-      
-    end 
-
-    bot.on_timeline do |tweet, meta|
-      next if BLACKLIST.include?(tweet[:user][:screen_name])
-
-      tokens = NLP.tokenize(tweet[:text])
-      special = tokens.find { |t| SPECIAL_WORDS.include?(t) }
-      trigger = tokens.find { |t| TRIGGER_WORDS.include?(t) }
-      
-      if special
-        favourite(tweet) if rand < 0.1
-      elsif trigger
-        block(tweet) if rand < 0.2
-      end 
-
-    end 
-
-    # Schedule a tweet for every 30 minutes
-    bot.scheduler.every '3600' do
-      post_picture()      
+  def on_message(dm)
+    # Reply to a DM
+    poop = Random.new.bytes(5)
+    delay do
+      bot.reply dm, "Talk to @#{AUTHOR_NAME} #{poop}" 
     end
+    
+  end
 
-  end 
+  def on_follow(user)
+    follow(user.screen_name)
+  end
 
-  def favourite(tweet)
-    @bot.log "Favoriting @#{tweet[:user][:screen_name]}: #{tweet[:text]}"
-    @bot.twitter.favorite(tweet[:id])
+  def on_mention(tweet)
+    tokens = Ebooks::NLP.tokenize(tweet.text)
 
-  end 
- 
+    special = tokens.find { |t| SPECIAL_WORDS.include?(t.downcase) }
+    trigger = tokens.find { |t| TRIGGER_WORDS.include?(t.downcase) }
+    
+    if trigger
+      block(tweet)
+    end
+    
+    if special
+      favourite(tweet)
+    end 
+    
+  end
+
+  def on_timeline(tweet)
+    tokens = Ebooks::NLP.tokenize(tweet.text)
+
+    special = tokens.find { |t| SPECIAL_WORDS.include?(t.downcase) }
+    
+    if special
+      favourite(tweet) if rand < 0.20
+    end 
+    
+  end
+  
   def next_index()
     seq = (0..(@pics.size - 1)).to_a
     seed = @status_count / @pics.size
@@ -99,35 +97,24 @@ class GenBot
     @status_count = @status_count + 1
     return res
   end
- 
-  def post_picture()
-    pic = @pics[next_index]
-    @bot.twitter.update_with_media("", File.new("pictures/#{pic}"))
-    @bot.log "posted pictures/#{pic}"
-  end
   
-  def prune_following()
-    following = Set.new(@bot.twitter.friend_ids.to_a)
-    followers = Set.new(@bot.twitter.follower_ids.to_a)
+  def prune_following
+    following = Set.new(twitter.friend_ids.to_a)
+    followers = Set.new(twitter.follower_ids.to_a)
     to_unfollow = (following - followers).to_a
-    @bot.log("Unfollowing user ids: #{to_unfollow}")
-    @bot.twitter.unfollow(to_unfollow)
+    log("Unfollowing user ids: #{to_unfollow}")
+    twitter.unfollow(to_unfollow)
   end
   
-  def block(tweet)
-    @bot.log "Blocking and reporting @#{tweet[:user][:screen_name]}"
-    @bot.twitter.block(tweet[:user][:screen_name])
-    @bot.twitter.report_spam(tweet[:user][:screen_name])
+  def post_picture
+    pic = @pics[next_index]
+    pictweet(HASH,"pictures/#{pic}")
   end
+  
+end
 
-end 
-
-def make_bot(bot, modelname)
-  GenBot.new(bot, modelname)
-end 
-
-Ebooks::Bot.new(TWITTER_USERNAME) do |bot|
-  bot.oauth_token = OATH_TOKEN
-  bot.oauth_token_secret = OAUTH_TOKEN_SECRET
-  make_bot(bot, TWITTER_USERNAME)
+# Make a MyBot and attach it to an account
+MyBot.new(TWITTER_USERNAME) do |bot|
+  bot.access_token = OATH_TOKEN # Token connecting the app to this account
+  bot.access_token_secret = OAUTH_TOKEN_SECRET # Secret connecting the app to this account
 end
