@@ -6,7 +6,7 @@ require 'set'
 
 CONSUMER_KEY = ""
 CONSUMER_SECRET = ""
-OATH_TOKEN = "" # oauth token for ebooks account
+OAUTH_TOKEN = "" # oauth token for ebooks account
 OAUTH_TOKEN_SECRET = "" # oauth secret for ebooks account
 
 TWITTER_USERNAME = "" # Ebooks account username
@@ -122,6 +122,6 @@ end
 
 # Make a MyBot and attach it to an account
 MyBot.new(TWITTER_USERNAME) do |bot|
-  bot.access_token = OATH_TOKEN # Token connecting the app to this account
+  bot.access_token = OAUTH_TOKEN # Token connecting the app to this account
   bot.access_token_secret = OAUTH_TOKEN_SECRET # Secret connecting the app to this account
 end
