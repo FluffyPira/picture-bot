@@ -72,7 +72,7 @@ class MyBot < Ebooks::Bot
     end
     
     if special
-      favourite(tweet)
+      favorite(tweet)
     end 
     
   end
@@ -83,10 +83,17 @@ class MyBot < Ebooks::Bot
     special = tokens.find { |t| SPECIAL_WORDS.include?(t.downcase) }
     
     if special
-      favourite(tweet) if rand < 0.20
+      favorite(tweet) if rand < 0.20
     end 
     
   end
+  
+  def favorite(tweet)
+    delay do
+      super(tweet)
+    end
+    
+  end 
   
   def next_index()
     seq = (0..(@pics.size - 1)).to_a
