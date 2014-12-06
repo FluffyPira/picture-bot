@@ -34,7 +34,7 @@ class MyBot < Ebooks::Bot
   end
 
   def on_startup
-    @pics = Dir.entries("pictures/") - %w[.. . .DS_Store].sort
+    @pics = (Dir.entries("pictures/") - %w[.. . .DS_Store]).sort()
     log @pics.take(5) # poll for consistency and tracking purposes.
     @status_count = twitter.user.statuses_count
     
