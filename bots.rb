@@ -1,5 +1,6 @@
 require 'twitter_ebooks'
 require 'set'
+require 'json'
 
 # This is an example bot definition with event handlers commented out
 # You can define and instantiate as many bots as you like
@@ -12,6 +13,7 @@ OAUTH_TOKEN_SECRET = "" # oauth secret for ebooks account
 TWITTER_USERNAME = "" # Ebooks account username
 AUTHOR_NAME = "" # Put your twitter handle in here
 HASH = "" # Hashtag if you post to one
+SOURCES_FILE = "" # JSON object of filename:source_url pairs if you want to post sources
 
 SPECIAL_WORDS = [''] # Words associated with your bot!
 TRIGGER_WORDS = [''] # will trigger auto block
@@ -37,6 +39,8 @@ class MyBot < Ebooks::Bot
     @pics = (Dir.entries("pictures/") - %w[.. . .DS_Store]).sort()
     log @pics.take(5) # poll for consistency and tracking purposes.
     @status_count = twitter.user.statuses_count
+    
+    load_sources
     
     post_picture
     
@@ -113,9 +117,23 @@ class MyBot < Ebooks::Bot
     twitter.unfollow(to_unfollow)
   end
   
+  def load_sources()
+    @source_links = begin
+      x = File.open(SOURCES_FILE, "r") {|file| JSON.load(file.read())}
+      x.is_a?(Hash) ? x : {}
+    rescue
+      {}
+    end
+  end
+  
+  # Returns empty string if no source exists
+  def get_source(pic)
+    @source_links[pic] or ""
+  end
+  
   def post_picture
     pic = @pics[next_index]
-    pictweet(HASH,"pictures/#{pic}")
+    pictweet(HASH + " " + get_source(pic), "pictures/#{pic}")
   end
   
 end
