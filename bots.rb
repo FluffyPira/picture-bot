@@ -2,6 +2,7 @@ require 'twitter_ebooks'
 require 'set'
 require 'json'
 require 'configru'
+# require 'twilio-ruby'
 
 # This is an example bot definition with event handlers commented out
 # You can define and instantiate as many bots as you like
@@ -26,9 +27,6 @@ config = Configru::Config.new('config.yml') do
     option_required :author, String
     option_required :hashtag, String
     option_required :sources, String
-    option_required :special, Array
-    option_required :trigger, Array
-    option_required :blacklist, Array
   end
 end
 
@@ -38,19 +36,19 @@ CONSUMER_SECRET = config.twitter.consumer_secret
 ACCESS_TOKEN = config.twitter.access_token
 ACCESS_TOKEN_SECRET = config.twitter.access_token_secret
 
-TWILIO_ACCOUNT = config.twilio.account
-TWILIO_AUTH_TOKEN = config.twilio.token
-TWILIO_PHONE_NUMBER = config.twilio.number
+# TWILIO_ACCOUNT = config.twilio.account
+# TWILIO_AUTH_TOKEN = config.twilio.token
+# TWILIO_PHONE_NUMBER = config.twilio.number
 
 TWITTER_USERNAME = config.bot.username # Ebooks account username
 AUTHOR_NAME = config.bot.author # Put your twitter handle in here
 HASH = "$#{config.bot.hashtag} " # Hashtag if you post to one
 SOURCES_FILE = config.bot.sources # JSON object of filename:source_url pairs if you want to post sources
 
-SPECIAL_WORDS = config.bot.special # Words associated with your bot!
-TRIGGER_WORDS = config.bot.trigger # will trigger auto block
+SPECIAL_WORDS = ['your', 'words', 'here'] # Words associated with your bot!
+TRIGGER_WORDS = ['trigger', 'words'] # will trigger auto block
 
-BLACKLIST = config.bot.blacklist # Users who don't want interaction; not currently in use
+BLACKLIST = ['someuser'] # Users who don't want interaction; not currently in use
 
 class MyBot < Ebooks::Bot
   # Configuration here applies to all MyBots
