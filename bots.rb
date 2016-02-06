@@ -1,14 +1,26 @@
 require 'twitter_ebooks'
 require 'set'
 require 'json'
+require 'configru'
 
 # This is an example bot definition with event handlers commented out
 # You can define and instantiate as many bots as you like
 
-CONSUMER_KEY = ""
-CONSUMER_SECRET = ""
-OAUTH_TOKEN = "" # oauth token for ebooks account
-OAUTH_TOKEN_SECRET = "" # oauth secret for ebooks account
+# Load us up some configuration file
+auth = Configru::Config.new('auth.yml') do
+  option_group :twitter do
+    option_required :consumer_key, String
+    option_required :consumer_secret, String
+    option_required :access_token, String
+    option_required :access_token_secret, String
+  end
+end
+
+# This is a sloppy way to manage holding auth info off file. Hopefully I can come up with a better solution.
+CONSUMER_KEY = auth.twitter.consumer_key 
+CONSUMER_SECRET = auth.twitter.consumer_secret
+ACCESS_TOKEN = auth.twitter.access_token
+ACCESS_TOKEN_SECRET = auth.twitter.access_token_secret
 
 TWITTER_USERNAME = "" # Ebooks account username
 AUTHOR_NAME = "" # Put your twitter handle in here
@@ -140,6 +152,6 @@ end
 
 # Make a MyBot and attach it to an account
 MyBot.new(TWITTER_USERNAME) do |bot|
-  bot.access_token = OAUTH_TOKEN # Token connecting the app to this account
-  bot.access_token_secret = OAUTH_TOKEN_SECRET # Secret connecting the app to this account
+  bot.access_token = ACCESS_TOKEN # Token connecting the app to this account
+  bot.access_token_secret = ACCESS_TOKEN_SECRET # Secret connecting the app to this account
 end

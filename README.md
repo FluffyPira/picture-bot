@@ -1,4 +1,4 @@
-# Picture Bot v 1.2
+# Picture Bot v 1.3
 
 Updated for twitter_ebooks version 3+
 
@@ -11,8 +11,10 @@ To install and run the bot, simply insert the commands below.
 - cd picture-bot
 - bundle install
 - add images to /pictures
-- modify bots.rb to include oauth, account names, and author's twitter handle
-- run with ./run.rb
+- modify bots.rb and auth.yml to your liking.
+	- auth.yml should contain your authorization keys.
+	- bots.rb will hold all other configuration for now.
+- run with the command 'ebooks start'
 
 Remember that to get the oauth information, you will need to create a [twitter app](https://apps.twitter.com/app/new) associated with the account or use [twurl](https://github.com/marcel/twurl) to associate your bot with an app. 
 
@@ -25,7 +27,9 @@ If you want to run the bot via heroku, there is a simple guide to deploying your
 - cd picture-bot
 - bundle install
 - add images to /pictures
-- modify bots.rb to include oauth, account names, and author's twitter handle
+- modify bots.rb and auth.yml to your liking.
+	- auth.yml should contain your authorization keys.
+	- bots.rb will hold all other configuration for now.
 - git init
 - git add .
 - git commit -m "_Your commit name_"
