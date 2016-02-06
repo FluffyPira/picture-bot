@@ -7,30 +7,50 @@ require 'configru'
 # You can define and instantiate as many bots as you like
 
 # Load us up some configuration file
-auth = Configru::Config.new('auth.yml') do
+config = Configru::Config.new('config.yml') do
   option_group :twitter do
     option_required :consumer_key, String
     option_required :consumer_secret, String
     option_required :access_token, String
     option_required :access_token_secret, String
   end
+  # Uncomment if you wish to enable twilio service for SMS
+  # Will be implimented more fully in a later version
+  # option_group :twilio do
+  #   option_required :account, String
+  #   option_required :token, String
+  #   option_required :number, Fixnum
+  # end
+  option_group :bot do
+    option_required :username, String
+    option_required :author, String
+    option_required :hashtag, String
+    option_required :sources, String
+    option_required :special, Array
+    option_required :trigger, Array
+    option_required :blacklist, Array
+  end
 end
 
 # This is a sloppy way to manage holding auth info off file. Hopefully I can come up with a better solution.
-CONSUMER_KEY = auth.twitter.consumer_key 
-CONSUMER_SECRET = auth.twitter.consumer_secret
-ACCESS_TOKEN = auth.twitter.access_token
-ACCESS_TOKEN_SECRET = auth.twitter.access_token_secret
+CONSUMER_KEY = config.twitter.consumer_key
+CONSUMER_SECRET = config.twitter.consumer_secret
+ACCESS_TOKEN = config.twitter.access_token
+ACCESS_TOKEN_SECRET = config.twitter.access_token_secret
 
-TWITTER_USERNAME = "" # Ebooks account username
-AUTHOR_NAME = "" # Put your twitter handle in here
-HASH = "" # Hashtag if you post to one
-SOURCES_FILE = "" # JSON object of filename:source_url pairs if you want to post sources
+TWILIO_ACCOUNT = config.twilio.account
+TWILIO_AUTH_TOKEN = config.twilio.token
+TWILIO_PHONE_NUMBER = config.twilio.number
 
-SPECIAL_WORDS = [''] # Words associated with your bot!
-TRIGGER_WORDS = [''] # will trigger auto block
+TWITTER_USERNAME = config.bot.username # Ebooks account username
+AUTHOR_NAME = config.bot.author # Put your twitter handle in here
+HASH = "$#{config.bot.hashtag} " # Hashtag if you post to one
+SOURCES_FILE = config.bot.sources # JSON object of filename:source_url pairs if you want to post sources
 
-BLACKLIST = ['tnietzschequote'] # Users who don't want interaction; not currently in use
+SPECIAL_WORDS = config.bot.special # Words associated with your bot!
+TRIGGER_WORDS = config.bot.trigger # will trigger auto block
+
+BLACKLIST = config.bot.blacklist # Users who don't want interaction; not currently in use
 
 class MyBot < Ebooks::Bot
   # Configuration here applies to all MyBots
@@ -65,12 +85,24 @@ class MyBot < Ebooks::Bot
   end
 
   def on_message(dm)
-    # Reply to a DM
-    poop = Random.new.bytes(5)
-    delay do
-      bot.reply dm, "Talk to @#{AUTHOR_NAME} #{poop}" 
-    end
-    
+    # Reply to a DM    
+    shit = Random.new.bytes(5)
+        
+    # if dm.text.start_with?('SMS')
+    #   message = dm.text.split(" ")
+    #   pic = @pics[next_index]
+    #  
+    #   @client.messages.create(
+    #     from: "+#{TWILIO_PHONE_NUMBER}",
+    #     to: "+#{message[1]}",
+    # Not sure how to impliment this yet. It only accepts image URLs and not pictures from the folder
+    #     media_url: ""
+    #   )
+    #   
+    #   reply(dm, "Text sent to +#{message[1]} - #{shit}")
+    # else
+      bot.reply dm, "Contact @#{AUTHOR_NAME} #{shit}"
+    # end
   end
 
   def on_follow(user)

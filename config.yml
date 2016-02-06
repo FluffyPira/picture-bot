@@ -1,0 +1,23 @@
+twitter:
+    consumer_key: 
+    consumer_secret:
+    access_token:
+    access_token_secret:
+twilio:
+    account:
+    token:
+    number:
+bot:
+    username:
+    author:
+    hashtag:
+    sources: 
+    special: 
+        - 
+        - 
+    trigger:
+        - 
+        -
+    blacklist:
+        - 
+        -

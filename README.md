@@ -11,9 +11,9 @@ To install and run the bot, simply insert the commands below.
 - cd picture-bot
 - bundle install
 - add images to /pictures
-- modify bots.rb and auth.yml to your liking.
-	- auth.yml should contain your authorization keys.
-	- bots.rb will hold all other configuration for now.
+- modify config.yml to your liking.
+	- config.yml should contain your authorization keys, and most of the bot customization.
+	- modify bots.rb only if you know exactly what you're doing.
 - run with the command 'ebooks start'
 
 Remember that to get the oauth information, you will need to create a [twitter app](https://apps.twitter.com/app/new) associated with the account or use [twurl](https://github.com/marcel/twurl) to associate your bot with an app. 
@@ -27,9 +27,9 @@ If you want to run the bot via heroku, there is a simple guide to deploying your
 - cd picture-bot
 - bundle install
 - add images to /pictures
-- modify bots.rb and auth.yml to your liking.
-	- auth.yml should contain your authorization keys.
-	- bots.rb will hold all other configuration for now.
+- modify config.yml to your liking.
+	- config.yml should contain your authorization keys, and most of the bot customization.
+	- modify bots.rb only if you know exactly what you're doing.
 - git init
 - git add .
 - git commit -m "_Your commit name_"
